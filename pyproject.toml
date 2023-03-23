@@ -1,0 +1,15 @@
+[build-system]
+requires = ["maturin>=0.14,<0.15"]
+build-backend = "maturin"
+
+[project]
+name = "colourtime"
+authors = [
+    {name = "Alexandre Marcireau", email = "alexandre.marcireau@gmail.com"},
+]
+description = "Represent time with colours"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = ["event_stream", "matplotlib", "numpy", "pillow"]
+version = "0.1.1"

@@ -1,0 +1,12 @@
+[package]
+name = "colourtime_extension"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+name = "colourtime_extension"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = {version = "0.18.1", features = ["extension-module"]}
+numpy = "0.18"
