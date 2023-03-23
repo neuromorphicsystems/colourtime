@@ -198,10 +198,13 @@ def main():
     input_path = pathlib.Path(args.input).resolve()
 
     if args.output is None:
-        name = f"{input_path.stem}_begin={args.begin}_end={args.end}_colormap={args.colormap}_alpha={args.alpha}"
+        name = f"{input_path.stem}_colormap={args.colormap}_alpha={args.alpha}"
+        if args.begin is not None:
+            name += f"_begin={args.begin}"
+        if args.end is not None:
+            name += f"_end={args.end}"
         if args.cycle is not None:
             name += f"_cycle={args.cycle}"
-        print(name)
         output = input_path.parent / f"{name}.png"
     else:
         output = pathlib.Path(args.output).resolve()

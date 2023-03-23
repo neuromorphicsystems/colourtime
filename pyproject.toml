@@ -12,7 +12,7 @@ readme = "README.md"
 license = {text = "MIT"}
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = ["event_stream", "matplotlib", "numpy", "pillow"]
-version = "0.2"
+version = "0.3"
 
 [project.scripts]
 colourtime = "colourtime:main"
