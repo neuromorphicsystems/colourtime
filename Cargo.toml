@@ -1,10 +1,10 @@
 [package]
-name = "colourtime_extension"
+name = "colourtime"
 version = "0.1.0"
 edition = "2018"
 
 [lib]
-name = "colourtime_extension"
+name = "colourtime"
 crate-type = ["cdylib"]
 
 [dependencies]

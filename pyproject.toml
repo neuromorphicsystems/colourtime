@@ -12,4 +12,21 @@ readme = "README.md"
 license = {text = "MIT"}
 classifiers = ["Programming Language :: Python :: 3"]
 dependencies = ["event_stream", "matplotlib", "numpy", "pillow"]
-version = "0.1.1"
+version = "0.2"
+
+[project.scripts]
+colourtime = "colourtime:main"
+
+[tool.maturin]
+python-source = "python"
+
+[tool.black]
+extend-exclude = "lib"
+
+[tool.pyright]
+typeCheckingMode = "basic"
+exclude = ["lib"]
+
+[tool.isort]
+profile = "black"
+skip = "lib"

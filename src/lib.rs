@@ -51,7 +51,7 @@ fn stack(
 }
 
 #[pyo3::pymodule]
-fn colourtime_extension(_py: pyo3::Python<'_>, module: &pyo3::types::PyModule) -> pyo3::PyResult<()> {
+fn colourtime(_py: pyo3::Python<'_>, module: &pyo3::types::PyModule) -> pyo3::PyResult<()> {
     module.add_function(pyo3::wrap_pyfunction!(stack, module)?)?;
     Ok(())
 }

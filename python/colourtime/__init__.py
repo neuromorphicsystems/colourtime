@@ -1,17 +1,12 @@
-import event_stream
-import colourtime_extension
-import matplotlib.colors
-import matplotlib
-import matplotlib.markers
-import matplotlib.pyplot
+import re
+import typing
+
 import numpy
 import numpy.lib.recfunctions
 import numpy.typing
 import PIL.Image
-import re
-import typing
 
-matplotlib.use("agg")
+from . import colourtime
 
 
 def convert(
@@ -20,15 +15,17 @@ def convert(
     width: int,
     height: int,
     decoder: typing.Generator[numpy.ndarray, None, None],
-    colormap: matplotlib.colors.Colormap,
+    colormap: typing.Callable[
+        [numpy.typing.NDArray[numpy.float64]], numpy.typing.NDArray[numpy.float64]
+    ],
     time_mapping: typing.Callable[
         [numpy.typing.NDArray[numpy.uint64]], numpy.typing.NDArray[numpy.float64]
     ],
     alpha: float,
-    background_color: tuple[float, float, float, float],
+    background_colour: tuple[float, float, float, float],
 ) -> PIL.Image.Image:
     image = numpy.zeros((width, height, 4), dtype=numpy.float64)
-    image[:, :] = background_color
+    image[:, :] = background_colour
     for packet in decoder:
         if begin is not None and packet["t"][-1] < begin:
             continue
@@ -51,11 +48,13 @@ def convert(
             (numpy.uint16, 2)
         )
         colours = colormap(time_mapping(events["t"]))
-        colourtime_extension.stack(image, xy, colours, alpha)
+        colourtime.stack(image, xy, colours, alpha)  # type: ignore
     return PIL.Image.fromarray(
         numpy.round(image * 255.0).astype(numpy.uint8),
         mode="RGBA",
-    ).transpose(PIL.Image.Transpose.ROTATE_90)
+    ).transpose(
+        PIL.Image.Transpose.ROTATE_90  # type: ignore
+    )
 
 
 def generate_cyclic_time_mapping(duration: int, begin: int):
@@ -76,31 +75,6 @@ def generate_linear_time_mapping(begin: int, end: int):
         return (timestamps - begin) / (end - begin)
 
     return linear_time_mapping
-
-
-TIMECODE_PATTERN = re.compile(r"^(\d+):(\d+):(\d+)(?:\.(\d+))?$")
-
-
-def timecode(value: str) -> int:
-    if value.isdigit():
-        return int(value)
-    match = TIMECODE_PATTERN.match(value)
-    if match is None:
-        raise argparse.ArgumentTypeError(
-            "expected an integer or a timecode (12:34:56.789000)"
-        )
-    result = (
-        int(match[1]) * 3600000000 + int(match[2]) * 60000000 + int(match[3]) * 1000000
-    )
-    if match[4] is not None:
-        fraction_string: str = match[4]
-        if len(fraction_string) == 6:
-            result += int(fraction_string)
-        elif len(fraction_string) < 6:
-            result += int(fraction_string + "0" * (6 - len(fraction_string)))
-        else:
-            result += round(float("0." + fraction_string) * 1e6)
-    return result
 
 
 def find_begin_and_end(
@@ -129,9 +103,40 @@ def find_begin_and_end(
     return (begin, end)
 
 
-if __name__ == "__main__":
+TIMECODE_PATTERN = re.compile(r"^(\d+):(\d+):(\d+)(?:\.(\d+))?$")
+
+
+def timecode(value: str) -> int:
+    if value.isdigit():
+        return int(value)
+    match = TIMECODE_PATTERN.match(value)
+    if match is None:
+        import argparse
+
+        raise argparse.ArgumentTypeError(
+            "expected an integer or a timecode (12:34:56.789000)"
+        )
+    result = (
+        int(match[1]) * 3600000000 + int(match[2]) * 60000000 + int(match[3]) * 1000000
+    )
+    if match[4] is not None:
+        fraction_string: str = match[4]
+        if len(fraction_string) == 6:
+            result += int(fraction_string)
+        elif len(fraction_string) < 6:
+            result += int(fraction_string + "0" * (6 - len(fraction_string)))
+        else:
+            result += round(float("0." + fraction_string) * 1e6)
+    return result
+
+
+def main():
     import argparse
     import pathlib
+
+    import event_stream
+    import matplotlib
+    import matplotlib.colors
 
     parser = argparse.ArgumentParser(
         description="Convert an Event Stream file into a colourtime plot",
@@ -157,7 +162,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--colormap",
-        "-m",
+        "-c",
         default="viridis",
         help="colormap (see https://matplotlib.org/stable/tutorials/colors/colormaps.html)",
     )
@@ -170,15 +175,15 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--cycle",
-        "-c",
+        "-y",
         type=timecode,
         help="enable cyclic time mapping with the given duration in seconds",
     )
     parser.add_argument(
-        "--background-color",
+        "--background-colour",
         "-k",
         default="#191919ff",
-        help="background color (RGB or RGBA)",
+        help="background colour (RGB or RGBA)",
     )
     parser.add_argument(
         "--png-compression-level",
@@ -238,7 +243,11 @@ if __name__ == "__main__":
             colormap=matplotlib.colormaps[args.colormap],  # type: ignore
             time_mapping=time_mapping,
             alpha=args.alpha,
-            background_color=matplotlib.colors.to_rgba(args.background_color),
+            background_colour=matplotlib.colors.to_rgba(args.background_colour),
         )
 
     image.save(str(output), compress_level=args.png_compression_level)
+
+
+if __name__ == "__main__":
+    main()
