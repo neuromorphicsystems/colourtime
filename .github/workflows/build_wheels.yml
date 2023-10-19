@@ -51,7 +51,7 @@ jobs:
           with:
             name: wheelhouse
             path: wheelhouse
-        - run: python -m pip install --find-links colourtime
+        - run: python -m pip install --find-links wheelhouse colourtime
           shell: bash
         - run: python -c 'import colourtime'
     build_sdist:
