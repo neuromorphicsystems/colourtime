@@ -51,7 +51,10 @@ jobs:
           with:
             name: wheelhouse
             path: wheelhouse
-        - run: python -m pip install --find-links wheelhouse colourtime
+        - run: ls wheelhouse # @DEV
+        - run: for file in wheelhouse/*.whl; do mv $file "$(printf "$file" | sed -r 's/^(colourtime)-(\d\.\d\.\d)-(.+)$/\1-\2+local-\3/')"; done
+        - run: ls wheelhouse # @DEV
+        - run: python -m pip install --find-links wheelhouse colourtime+local
           shell: bash
         - run: python -c 'import colourtime'
     build_sdist:
