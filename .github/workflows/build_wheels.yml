@@ -50,6 +50,7 @@ jobs:
             path: wheelhouse
         - run: ls wheelhouse # @DEV
         - run: python -c 'import pathlib; import re; pattern = re.compile(r"(colourtime)-(\d\.\d\.\d|\d\.\d)-(.+)"); [path.rename(path.parent / f"{match[1]}-{match[2]}+local-{match[3]}") for (path, match) in ((path, pattern.match(path.name)) for path in pathlib.Path.cwd().iterdir()) if match is not None]'
+          working-directory: wheelhouse
         - run: ls wheelhouse # @DEV
         - run: python -m pip install --find-links wheelhouse colourtime+local
           shell: bash
