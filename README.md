@@ -18,11 +18,21 @@ Check **python/**init**.py** for details on the Python API.
 
 ## Build from source
 
+Local build (first run).
+
 ```sh
-python3 -m venv .
-source ./bin/activate
-pip3 install -U pip event_stream matplotlib maturin numpy pillow
-maturin develop -r
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install maturin numpy
+maturin develop  # or maturin develop --release to build with optimizations
+```
+
+Local build (subsequent runs).
+
+```sh
+source .venv/bin/activate
+maturin develop  # or maturin develop --release to build with optimizations
 ```
 
 ## Format
